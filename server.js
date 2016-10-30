@@ -5,6 +5,7 @@ const express = require('express');
 const morgan = require('morgan');
 const nconf = require('nconf');
 const _ = require('underscore');
+const expressWs = require('express-ws');
 
 // env > configs/local.json > default values
 nconf
@@ -15,6 +16,9 @@ nconf
   })
 
 var app = express();
+
+// add websocket support
+expressWs(app);
 
 // display logs
 app.use(morgan('combined'))
@@ -27,6 +31,22 @@ app.get('/app/config.js', function(req, res, next) {
   // this can also be used to redirect to a config hosted elsewhere - a backend for example - see commented code
   // const redirectUrl = `${nconf.get('BACKEND_BASE_URL')}/js/config.js${_.isEmpty(req.query) ? '' : '?' + querystring.stringify(req.query)}`;
   // return res.redirect(redirectUrl);
+});
+
+// simple echo websocket
+app.ws('/echo', function(ws, req) {
+
+  console.log("WS: new connection");
+
+  // echo the message back
+  ws.on('message', function(msg) {
+    console.log("WS: received message:", msg);
+    ws.send(msg);
+  });
+
+  ws.on('close', function() {
+    console.log('WS: connection closed');
+  })
 });
 
 // return the static files located under www
