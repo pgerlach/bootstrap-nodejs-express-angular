@@ -1,0 +1,1 @@
+/* THIS FILE IS NEVER RETURNED, SEE the route app.get('/app/config.js') in server.js */
